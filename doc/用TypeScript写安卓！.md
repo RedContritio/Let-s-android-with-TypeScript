@@ -46,3 +46,17 @@ git commit -m "initialize project"
 通常文档应该添加在 `doc` 目录中，这里不做赘述，毕竟你正在看的就是本项目的文档。
 
 另外，文档最好也使用 `git` 一起管理起来。
+
+## 使用在线版本管理
+
+`github` 是一个好的平台，我们可以使用。
+
+由于政治正确的原因，`github` 默认分支名称将被推荐使用 `main`，因此我们也这样做。
+
+```bash
+git remote add origin git@github.com:RedContritio/Let-s-android-with-TypeScript.git
+git branch -M main
+git push -u origin main
+```
+
+这样一来，我们的项目就上传到了 github。
