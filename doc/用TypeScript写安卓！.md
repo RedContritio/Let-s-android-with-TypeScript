@@ -60,3 +60,73 @@ git push -u origin main
 ```
 
 这样一来，我们的项目就上传到了 github。
+
+## 下载所需依赖
+
+这一步非常简单，但是同时也很重要。
+
+执行 `yarn`，会下载依赖到 `node_modules`。
+
+如果你不是完全参考此教程，坚持使用 `npm` 进行管理的话，你可能需要 `npm install`。
+
+通过看根目录下的 `lock` 文件可以判断应该使用什么。
+
+如果根目录存在 `yarn.lock`，那么请 `yarn`。
+
+否则，你应该会看到 `package-lock.json`，不用犹豫，`npm install` 吧。
+
+由于 `node_modules` 在 `.gitignore` 中有声明，因此不会被记录进版本。
+
+## 格式化与提示
+
+`node` 项目上进行操作通常是执行 `package.json` 中定义的脚本。
+
+对于 `npm` 管理的项目，通常使用 `npm run XXX`。特别的，由于该模板项目为 `yarn` 管理的，因此我们可以直接 `yarn XXX`。
+
+`package.json` 中可以看到预定义的内容如下。
+
+```json
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+  },
+```
+
+`lint` 可以用来静态分析代码，检查是否有不符合规范的地方。
+此外，我们使用 `prettier` 来格式化代码。
+
+对 `package.json` 的内容略作修改，在 `"scripts"` 中添加以下几行（相同键的行进行覆盖，可能需要酌情增删逗号）。
+
+```json
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "prettier": "prettier . --check",
+    "prettier:fix": "prettier . --write",
+```
+
+现在，已经配置好了命令。
+
+`lint` 与 `prettier` 用于检查，而加上后缀的 `:fix` 则用于自动修正。
+
+现在我们进行自动修复。
+
+```bash
+yarn prettier:fix
+yarn lint:fix
+```
+
+当遇到问题不能自动修复时，对应命令会给出详情，请手动解决。
+
+现在项目已经完成了格式化工作。
+
+继续提交当前更新。
+
+```bash
+git add .
+git commit -m "add prettier and lint"
+```
+
+版本管理工作此后都不做赘述。
