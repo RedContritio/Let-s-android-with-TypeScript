@@ -417,12 +417,15 @@ export const rootReducer = combineReducers({
 
 如果这样做，很简单。
 
+***不要照做！这里仅用来对比***
+
 ```typescript
 import React, {useEffect} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
-import {FPS} from '../utils/constant';
-import {tick as tick_action} from '../action/timer';
+import {tick as tick_action} from '../features/timer';
+
+const FPS: number = 60;
 
 interface IProps {
   tick: () => void;
