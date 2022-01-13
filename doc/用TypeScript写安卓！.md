@@ -130,3 +130,41 @@ git commit -m "add prettier and lint"
 ```
 
 版本管理工作此后都不做赘述。
+
+## 运行代码
+
+**首次运行会很慢，因为要下载大量依赖库**
+
+如果你有虚拟机，可以直接 `yarn android` 运行，并跳过本节。
+
+由于我更喜欢在设备上通过 `ADB` 运行（好吧，因为我开发环境性能太差，虚拟机效果并不好），因此该节介绍在实机上调试。
+
+假设你安装了 `Android SDK`，并且 `adb` 命令可用。
+
+首先执行 `adb devices`，你将期待看到你的设备显示在下面并且是连接状态，否则，请在对应手机上的开发者选项中配置允许 USB 调试。
+
+现在，执行 `yarn android`，其将会默认通过 USB 连接的设备进行调试。
+
+为了此后方便，我们不妨将 `package.json` 中的脚本进行微调。
+
+将
+
+```json
+    "android": "react-native run-android",
+```
+
+修改为
+
+```json
+    "android": "adb devices && react-native run-android",
+```
+
+此后就可以直接执行 `yarn android`。
+
+为了保留原来的调用模拟器调试功能，我们添加一行。
+
+```json
+    "android:direct": "react-native run-android",
+```
+
+如果想用模拟器执行，则使用 `yarn android:direct`，否则直接使用 `yarn android`。
