@@ -417,7 +417,7 @@ export const rootReducer = combineReducers({
 
 如果这样做，很简单。
 
-***不要照做！这里仅用来对比***
+**_不要照做！这里仅用来对比_**
 
 ```typescript
 import React, {useEffect} from 'react';
@@ -568,3 +568,40 @@ export function TimerDisplay() {
 ```
 
 现在运行，我们可以发现显示的帧率和时间能够随着时间自行更新，到这里姑且告一段落。
+
+## 横屏的安卓程序
+
+很简单，修改 `android/app/src/main/AndroidManifest.xml`。
+
+修改后的文件内容如下。
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.evolution_of_math">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+      android:name=".MainApplication"
+      android:label="@string/app_name"
+      android:icon="@mipmap/ic_launcher"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:allowBackup="false"
+      android:theme="@style/AppTheme">
+      <activity
+        android:name=".MainActivity"
+        android:label="@string/app_name"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+        android:launchMode="singleTask"
+        android:windowSoftInputMode="adjustResize"
+        android:screenOrientation="landscape">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+      </activity>
+    </application>
+</manifest>
+```
+
+如果不出意外，你可能需要重启调试程序以应用更改，而非简单的 `reload`。
