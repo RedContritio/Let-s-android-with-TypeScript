@@ -605,3 +605,55 @@ export function TimerDisplay() {
 ```
 
 如果不出意外，你可能需要重启调试程序以应用更改，而非简单的 `reload`。
+
+## 最简的 `App.tsx`
+
+现在让我们摆脱初始的 `App.tsx` 吧，我们使用一个空白页面。
+
+啊，倒也不全是，我们保留 `SafeAreaView` 与 `TimerDisplay`，前者用于保证显示安全，后者用来调试。
+
+删减后的 `App.tsx` 如下所示。
+
+```typescript
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * Generated with the TypeScript template
+ * https://github.com/react-native-community/react-native-template-typescript
+ *
+ * @format
+ */
+
+import React from 'react';
+import {SafeAreaView, StatusBar, useColorScheme} from 'react-native';
+
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {Provider} from 'react-redux';
+import {HiddenTimer, TimerDisplay} from './src/container/timer';
+import store from './src/store';
+
+const App = () => {
+  const isDarkMode = useColorScheme() === 'dark';
+
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  };
+
+  return (
+    <Provider store={store}>
+      <HiddenTimer />
+      <SafeAreaView style={backgroundStyle}>
+        <StatusBar hidden={true} />
+        <TimerDisplay />
+      </SafeAreaView>
+    </Provider>
+  );
+};
+
+export default App;
+```
+
+可以看到，几乎所有无效代码都被删除。此外，我们隐藏了状态栏，之所以使用状态栏并设置 `hidden`，是因为只有显式使用状态栏并设置其隐藏，才能隐藏状态栏，不使用状态栏会导致其使用缺省配置显示状态栏。
+
+`TimerDisplay` 将会随后改进。
