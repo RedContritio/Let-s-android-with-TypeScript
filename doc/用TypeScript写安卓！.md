@@ -657,3 +657,60 @@ export default App;
 可以看到，几乎所有无效代码都被删除。此外，我们隐藏了状态栏，之所以使用状态栏并设置 `hidden`，是因为只有显式使用状态栏并设置其隐藏，才能隐藏状态栏，不使用状态栏会导致其使用缺省配置显示状态栏。
 
 `TimerDisplay` 将会随后改进。
+
+## 实时的计时器
+
+[上面](##随时间变动的主循环)我们使用了 `requestAnimationFrame` 来使用主循环，其缺点在于帧率无法主动控制。
+
+稍作回想其回调函数携带的参数，根据文档，其含义为发生更新时的时间，单位为 `ms`。
+
+我们改进 `features/timer.ts` 以使用该参数。
+
+```typescript
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import performanceNow from 'performance-now';
+
+export const timerSlice = createSlice({
+  name: 'basic/timer',
+  initialState: {
+    g_time_base: performanceNow() / 1000,
+    g_time: 0,
+    g_time_delta: 0,
+  },
+  reducers: {
+    tick: (state, action: PayloadAction<number>) => {
+      const ntime = action.payload / 1000 - state.g_time_base;
+      state.g_time_delta = ntime - state.g_time;
+      state.g_time = ntime;
+    },
+    default: (state, _action: PayloadAction<undefined>) => state,
+  },
+});
+
+export const {tick} = timerSlice.actions;
+export const timerReducer = timerSlice.reducer;
+```
+
+可以看到，我们首先使用了库 `performance-now`，最好执行 `yarn add performance-now` 来安装这个依赖。
+
+随后，我们用 `g_time_base` 表示基准时间，`g_time` 表示当前时间（距离基准时间的秒数），`g_time_delta` 则是距离上次的时间差（秒数）。
+
+接着，我们改良 `container/timer.tsx`中的 `TimerDisplay`。
+
+根据 `fps` 的定义，我们改写 `TimerDisplay` 如下。
+
+```typescript
+export function TimerDisplay() {
+  const {g_time, g_time_delta} = useSelector(
+    (state: RootState) => state.timerReducer,
+  );
+  return (
+    <Text>
+      current fps: {(1 / g_time_delta).toFixed(0)}, current seconds:{' '}
+      {g_time.toFixed(2)}
+    </Text>
+  );
+}
+```
+
+至此，准备工作告一段落。

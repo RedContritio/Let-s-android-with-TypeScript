@@ -49,10 +49,13 @@ export const HiddenTimer = connect(
 )(InnerHiddenTimer);
 
 export function TimerDisplay() {
-  const {g_frame} = useSelector((state: RootState) => state.timerReducer);
+  const {g_time, g_time_delta} = useSelector(
+    (state: RootState) => state.timerReducer,
+  );
   return (
     <Text>
-      current frame: {g_frame}, current second: {(g_frame / 60).toFixed(2)}
+      current fps: {(1 / g_time_delta).toFixed(0)}, current seconds:{' '}
+      {g_time.toFixed(2)}
     </Text>
   );
 }
