@@ -714,3 +714,84 @@ export function TimerDisplay() {
 ```
 
 至此，准备工作告一段落。
+
+## 持久化存储
+
+作为一个安卓应用，你显然不希望它每次重启后就失去运行过的信息。
+
+通常，在这种时候，我们需要额外的库来帮助我们，现在也不例外，不过不急于当下。
+
+我们首先创建一个用于验证持久化存储的组件，为了简单，我们就叫它 `counter` 吧，字面意思，计数器。
+
+首先创建 `features/counter.ts`，使其支持自增。
+
+```typescript
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+
+export const counterSlice = createSlice({
+  name: 'basic/counter',
+  initialState: {
+    g_value: 0,
+  },
+  reducers: {
+    increment: (state, _action: PayloadAction<undefined>) => {
+      state.g_value += 1;
+    },
+    default: (state, _action: PayloadAction<undefined>) => state,
+  },
+});
+
+export const {increment} = counterSlice.actions;
+export const counterReducer = counterSlice.reducer;
+```
+
+随后将这些信息塞进 `features/index.ts` 中，便于使用。
+
+```typescript
+import {combineReducers} from '@reduxjs/toolkit';
+import {dummyReducer} from './dummy';
+import {timerReducer} from './timer';
+import {counterReducer} from './counter';
+
+export const rootReducer = combineReducers({
+  dummyReducer,
+  timerReducer,
+  counterReducer,
+});
+
+export * from './dummy';
+export * from './timer';
+export * from './counter';
+```
+
+最后这三行用于将转发导出内容。
+
+最后，创建 `container/counter.tsx`，显示当前计数器的值并提供自增按钮。
+
+```typescript
+import React from 'react';
+import {Button, Text, View} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {increment} from '../features';
+import {RootState} from '../store';
+
+export function CounterDisplay() {
+  const {g_value} = useSelector((state: RootState) => state.counterReducer);
+  const dispatch = useDispatch();
+  return (
+    <View>
+      <Text>counter value: {g_value}</Text>
+      <Button title="+1" onPress={() => dispatch(increment())} />
+    </View>
+  );
+}
+```
+
+只需要将这个组件加入 `App.tsx` 中即可显示，我们将之放到 `TimerDisplay` 之后。
+
+```typescript
+        <TimerDisplay />
+        <CounterDisplay />
+```
+
+至此，可以看到有一个可用的计数器了，并且当我们 `reload` 时，其计数将会清空。

@@ -1,5 +1,5 @@
-import {Dispatch} from '@reduxjs/toolkit';
 import React from 'react';
+import {Dispatch} from '@reduxjs/toolkit';
 import {Text} from 'react-native';
 import {connect, useSelector} from 'react-redux';
 import {tick as tick_action} from '../features/timer';

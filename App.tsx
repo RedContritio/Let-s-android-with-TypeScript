@@ -13,6 +13,7 @@ import {SafeAreaView, StatusBar, useColorScheme} from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Provider} from 'react-redux';
+import {CounterDisplay} from './src/container/counter';
 import {HiddenTimer, TimerDisplay} from './src/container/timer';
 import store from './src/store';
 
@@ -29,6 +30,7 @@ const App = () => {
       <SafeAreaView style={backgroundStyle}>
         <StatusBar hidden={true} />
         <TimerDisplay />
+        <CounterDisplay />
       </SafeAreaView>
     </Provider>
   );
