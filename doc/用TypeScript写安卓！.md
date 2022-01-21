@@ -795,3 +795,5 @@ export function CounterDisplay() {
 ```
 
 至此，可以看到有一个可用的计数器了，并且当我们 `reload` 时，其计数将会清空。
+
+*此前的 timer 设计有误，time_base 不应当作为状态，而是交由 `container/timer.tsx` 管理，这里有一个 fix 提交*
