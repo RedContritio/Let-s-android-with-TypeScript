@@ -118,6 +118,8 @@ yarn prettier:fix
 yarn lint:fix
 ```
 
+特别的，由于 `prettier` 不擅长对付 `markdown`，因此我们应该添加 `.prettierignore` 以禁止该操作。这个修复在后续提交中会得以实现，因此你可以（并被建议）基于最新版本的文档来学习。
+
 当遇到问题不能自动修复时，对应命令会给出详情，请手动解决。
 
 现在项目已经完成了格式化工作。
@@ -171,7 +173,7 @@ git commit -m "add prettier and lint"
 
 ## 使用 redux
 
-**_我们当然可以直接使用 redux toolkit，但是还是一步步来比较好？_**
+***我们当然可以直接使用 redux toolkit，但是还是一步步来比较好？***
 
 先安装 `react-redux` 库。
 
@@ -417,7 +419,7 @@ export const rootReducer = combineReducers({
 
 如果这样做，很简单。
 
-**_不要照做！这里仅用来对比_**
+***不要照做！这里仅用来对比***
 
 ```typescript
 import React, {useEffect} from 'react';
@@ -796,4 +798,100 @@ export function CounterDisplay() {
 
 至此，可以看到有一个可用的计数器了，并且当我们 `reload` 时，其计数将会清空。
 
-*此前的 timer 设计有误，time_base 不应当作为状态，而是交由 `container/timer.tsx` 管理，这里有一个 fix 提交*
+***此前的 timer 设计有误，time_base 不应当作为状态，而是交由 `container/timer.tsx` 管理，这里有一个 fix 提交***
+
+现在，可以正式开始了。
+
+首先我们需要安装几个相关依赖。
+
+```bash
+yarn add redux-persist @react-native-community/async-storage
+yarn add redux-thunk
+yarn add redux-logger @types/redux-logger
+```
+
+第一行是 `redux` 的持久化存储工具以及其基础包 `async-storage`。后两行则是两个 `redux` 中间件。
+
+安装后，我们就可以改写我们的 `src/store/index.ts`，应用持久化存储。
+
+```typescript
+import AsyncStorage from '@react-native-community/async-storage';
+import {configureStore, PayloadAction} from '@reduxjs/toolkit';
+import {persistReducer, persistStore} from 'redux-persist';
+import {rootReducer} from '../features';
+import thunk from 'redux-thunk';
+import {createLogger} from 'redux-logger';
+
+export type RootState = ReturnType<typeof rootReducer>;
+
+const persistConfig = {
+  key: 'root',
+  version: 1,
+  storage: AsyncStorage,
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+const logger = createLogger({
+  predicate: (_, action: PayloadAction) => {
+    if (action.type.startsWith('basic/timer')) {
+      return false;
+    }
+    return true;
+  },
+});
+
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: [thunk, logger],
+});
+
+export default store;
+
+export const persistor = persistStore(store);
+```
+
+可以看到，首先创建了一个 `persistedReducer`，随后基于这个对象创建 `store`。
+
+特别的，在 `configureStore` 时需要手动指定中间件，否则会发生错误。我们参考常见做法使用 `thunk` 与 `logger` 这两个中间件。
+
+`thunk` 姑且不论（将来或许也不必了解），`logger` 用于记录每次动作的分发。
+
+需要注意的一点是，我们需要定制 `logger`，使其不对 `timer` 的内容进行记录，否则会是灾难性的日志输出。
+
+定制方法是：指定 `predicate`，如果 `action.type` 以 `basic/timer` 开头，则忽视之。
+
+这里有些小改动，除了 `export default` 之外，我们单独 `export` 了 `store` 与 `persistor`。
+
+这两个组件将会在 `App.tsx` 中用到。
+
+```typescript
+import {store, persistor} from './src/store';
+
+const App = () => {
+  const isDarkMode = useColorScheme() === 'dark';
+
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  };
+
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <HiddenTimer />
+        <SafeAreaView style={backgroundStyle}>
+          <StatusBar hidden={true} />
+          <TimerDisplay />
+          <CounterDisplay />
+        </SafeAreaView>
+      </PersistGate>
+    </Provider>
+  );
+};
+```
+
+可以看到，我们在 `<Provider>` 内增加了一层 `<PersistGate>`，用于自动持久化存储。
+
+进行测试，表现良好。
+
+这就是持久化存储——`typescript`，`react-native` 与 `redux` 集成后的持久化存储！

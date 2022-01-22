@@ -13,9 +13,10 @@ import {SafeAreaView, StatusBar, useColorScheme} from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Provider} from 'react-redux';
+import {PersistGate} from 'redux-persist/integration/react';
 import {CounterDisplay} from './src/container/counter';
 import {HiddenTimer, TimerDisplay} from './src/container/timer';
-import store from './src/store';
+import {store, persistor} from './src/store';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -26,12 +27,14 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <HiddenTimer />
-      <SafeAreaView style={backgroundStyle}>
-        <StatusBar hidden={true} />
-        <TimerDisplay />
-        <CounterDisplay />
-      </SafeAreaView>
+      <PersistGate loading={null} persistor={persistor}>
+        <HiddenTimer />
+        <SafeAreaView style={backgroundStyle}>
+          <StatusBar hidden={true} />
+          <TimerDisplay />
+          <CounterDisplay />
+        </SafeAreaView>
+      </PersistGate>
     </Provider>
   );
 };
